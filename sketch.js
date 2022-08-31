@@ -1,9 +1,10 @@
-
 var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
 var bow , arrow,  background, redB, pinkB, greenB ,blueB ,arrowGroup;
 var bowImage, arrowImage, green_balloonImage, red_balloonImage, pink_balloonImage ,blue_balloonImage, backgroundImage;
+var gameOver,gameOverimage, restart, restartImage;
+
 
 var score =0;
 function preload(){
@@ -16,6 +17,8 @@ function preload(){
   green_balloonImage = loadImage("green_balloon0.png");
   pink_balloonImage = loadImage("pink_balloon0.png");
   blue_balloonImage = loadImage("blue_balloon0.png");
+  restartImage = loadImage("restart.png");
+  gameOverimage = loadImage("gameOver.png");
   
 }
 
@@ -35,41 +38,48 @@ function setup() {
   bow.scale = 1;
   
    score = 0  
- //redB= new Group();
+  redB= new Group();
+  greenB= new Group();
+  blueB= new Group();
+  pinkB= new Group();
+  arrowGroup= new Group();
  
- // arrowGroup= new Group();
+  gameOver = createSprite(200,150,20,20);
+  gameOver.addImage(gameOverimage);
+  gameOver.scale = 0.4;
+  gameOver.visible = false;
 
-  
+  restart = createSprite(200,200,20,20);
+  restart.addImage(restartImage);
+  restart.scale = 0.4;
+  restart.visible = false;
+
+  greenB.debug = true;
 }
 
 function draw() {
  background(0);
- 
+ if(gameState === PLAY){
 
- 
- if(gameState === PLAY)
- {
-      /*Uncomment correct option 
-        according to PLAY state*/  
-      // // moving ground
-      scene.velocityX = -3 
-      // //destroy bow
-      // bow.destroy();
-      // //reset the background
-       if (scene.x < 0){
-           scene.x = scene.width/2;
-          }
-      // //moving bow
-       bow.y = World.mouseY      
-      // //stop background movement
-      // scene.velocityX = 0;
+  // moving ground
+    scene.velocityX = -3 
 
+    if (scene.x < 0){
+      scene.x = scene.width/2;
+    }
   
+  //moving bow
+  bow.y = World.mouseY
+  
+  gameOver.visible = false;
+  restart.visible = false;
+
    // release arrow when space key is pressed
   if (keyDown("space")) {
-    createArrow();  
+    createArrow();
+    
   }
-  
+
   //creating continous enemies
   var select_balloon = Math.round(random(1,4));
   
@@ -86,50 +96,66 @@ function draw() {
       default:break;
     }
   }
- }
 
-
+  /*Uncomment correct statement so that 
+  game goes to "END" state 
+  when red balloon is hit*/
+  if (arrowGroup.isTouching(redB)) 
+  //if (arrowGroup.Collide(redB)) 
+  //if (arrowGroup.isCollide(redB)) 
+  //if(frameCount>700)//comment this line after selecting the solution
+  {
+    redB.destroyEach();
+    gameState=END; 
+   }
+ 
   if (gameState === END) {
-    /*Uncomment correct option 
-      according to END state*/  
-      // // moving ground
-      // scene.velocityX = -3 
-      // //destroy bow
-       bow.destroy();
-      // //reset the background
-      // if (scene.x < 0){
-      //     scene.x = scene.width/2;
-      //    }
-      // //moving bow
-      // bow.y = World.mouseY      
-      // //stop background movement
-       scene.velocityX = 0;
-
-  }
-
-if (frameCount>1000) {
-  //red.destroyEach();
-  gameState=END; 
+  bow.destroy();
+  scene.velocityX = 0;
+  arrowGroup.destroyEach();
+  gameOver.visible = true;
+  restart.visible = true;
 }
 
 
+ if (arrowGroup.isTouching(greenB)) {
+  greenB.destroyEach();
+  arrowGroup.destroyEach();
+  score=score+3;
+}
+
+/*Uncomment correct if block to 
+destroy the blue balloon when hit 
+by the arrows */
+
+  if (arrowGroup.isTouching(blueB)) {
+   blueB.destroyEach();
+   arrowGroup.destroyEach();
+   score=score+2;
+ }
 
 
- 
+//  if (arrowGroup.isTouching(redB)) {
+//   blueB.destroyEach();
+//   arrowGroup.destroyEach();
+// }
+
+
+//  if (arrowGroup.isTouching(blueB)) {
+//   arrowGroup.destroyEach();
+// }
+
+
+if (arrowGroup.isTouching(pinkB)) {
+  pinkB.destroyEach();
+  arrowGroup.destroyEach();
+  score=score+1;
+}
+ }
   
   drawSprites();
   text("Score: "+ score, 300,50);
 }
-
-
-
-
-
-
-
-
-
-
 
 
 function redBalloon() {
@@ -138,7 +164,7 @@ function redBalloon() {
   red.velocityX = 3;
   red.lifetime = 150;
   red.scale = 0.1;
-//  redB.add(red);
+  redB.add(red);
 }
 
 function blueBalloon() {
@@ -147,6 +173,7 @@ function blueBalloon() {
   blue.velocityX = 3;
   blue.lifetime = 150;
   blue.scale = 0.1;
+  blueB.add(blue);
 }
 
 function greenBalloon() {
@@ -155,6 +182,7 @@ function greenBalloon() {
   green.velocityX = 3;
   green.lifetime = 150;
   green.scale = 0.1;
+  greenB.add(green);
 }
 
 function pinkBalloon() {
@@ -163,8 +191,9 @@ function pinkBalloon() {
   pink.velocityX = 3;
   pink.lifetime = 150;
   pink.scale = 1
-
+  pinkB.add(pink);
 }
+
 
 // Creating  arrows for bow
  function createArrow() {
@@ -175,6 +204,6 @@ function pinkBalloon() {
   arrow.velocityX = -4;
   arrow.lifetime = 100;
   arrow.scale = 0.3;
-//  arrowGroup.add(arrow);
-
+  arrowGroup.add(arrow);
+   
 }
